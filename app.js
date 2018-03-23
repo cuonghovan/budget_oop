@@ -142,7 +142,8 @@ var UIController = (function() {
     expenseLabel: '.budget__expenses--value',
     percentageLabel: '.budget__expenses--percentage',
     container: '.container',
-    expensePercLabel: '.item__percentage'
+    expensePercLabel: '.item__percentage',
+    monthLabel: '.budget__title--month'
   };
 
   var formatNumber = function(number, type) {
@@ -151,19 +152,23 @@ var UIController = (function() {
     number = Math.abs(number);
     number = number.toFixed(2);
 
-    numSplit = number.split('.');
-    int = numSplit[0];
-    intString = '';
-
-    while (int.length > 3) {
-      intString =  ',' + int.substr(int.length - 3, 3) + intString;
-      int = int.substr(0, int.length - 3);
+    if (number != 0) {
+      numSplit = number.split('.');
+      int = numSplit[0];
+      intString = '';
+  
+      while (int.length > 3) {
+        intString =  ',' + int.substr(int.length - 3, 3) + intString;
+        int = int.substr(0, int.length - 3);
+      }
+  
+      intString = int + intString;
+      dec = numSplit[1];
+  
+      return (type === 'exp' ? '-' : '+') + ' ' + intString + '.' + dec;
+    } else {
+      return number;
     }
-
-    intString = int + intString;
-    dec = numSplit[1];
-
-    return (type === 'exp' ? '-' : '+') + ' ' + intString + '.' + dec;
   }
 
   return {
@@ -243,6 +248,16 @@ var UIController = (function() {
       nodeListForeach(itemPercentageNodes, function(cur, index) {
         cur.textContent = percentages[index] + '%';
       });
+    },
+    displayMonth: function() {
+      var now, month, months, year;
+
+      months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      now = new Date();
+      month = now.getMonth();
+      year = now.getFullYear();
+      
+      document.querySelector(DOMStrings.monthLabel).textContent =  months[month] + ' ' + year;
     }
   };
 })();
@@ -339,6 +354,7 @@ var controller = (function(budgetCtrl, UICtrl) {
   return {
     init: function() {
       setupEventListeners();
+      UICtrl.displayMonth();
       UICtrl.displayBudget({
         budget: 0,
         totalInc: 0,
